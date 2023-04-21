@@ -3,23 +3,35 @@ from twilio.rest import Client
 import pika
 import uuid
 import re
+import json
 
 app = Flask(__name__)
 
 class MessengerClient(object):
     def __init__(self):
         account_sid = "AC7900bdb31e3ff93ca21a444346b588f4" # os.environ['TWILIO_ACCOUNT_SID']
-        auth_token = "7de414004199418fce905efe092c9a19" #os.environ['TWILIO_AUTH_TOKEN']
+        auth_token = "08bbbb0d2961396064b418af61570c8b" #os.environ['TWILIO_AUTH_TOKEN']
         self.twilio_client = Client(account_sid, auth_token)
 
-    def send_message_your_move(self , client_number, fen):
-        your_move_message = "Play your next move!"
+    def send_message_your_move(self , client_number, fen, lastMove):
+        #fen = "r1bqkbnr/pppp1ppp/2n5/4p3/2B1P3/5N2/PPPP1PPP/RNBQK2R w KQkq e6 0 2"
+        board = fen.split(" ")[0].replace("/","")
+        print(board)
+        # active_color = match.group(3)
+        # castling_availability = match.group(4)
+        # en_passant_square = match.group(5)
+        # halfmove_clock = match.group(6)
+        # fullmove_number = match.group(7)
+        your_move_message = f"Your opponent played: {lastMove}\n Your turn!"
         message = self.twilio_client.messages.create(
             body=your_move_message,
             from_='+18336301344',
-            media_url=['https://chessboardimage.com/{0}.png'.format(fen)],
-            to=client_number
+            media_url=['https://chessboardimage.com/{0}.png'.format(board.replace("/",""))],
+            to="+1"+client_number
         )
+        
+        print(message.sid, message.body)
+
 class ChessGameRequestClient(object):
     def __init__(self):
         self.connection = pika.BlockingConnection(
@@ -59,14 +71,19 @@ class ChessGameRequestClient(object):
         return self.response
 
 CGRC = ChessGameRequestClient()
-
+Messenger = MessengerClient()
 @app.route('/sendChessMove', methods=['POST'])
-def sendChessMove():
-    from_num = request.form['From']
+def sendChessMove(): 
+
+    from_num = request.form['From'][2:]
     message_body = request.form['Body']
+    print("Message BODY:", message_body)
     queueMessage ="ERROR"
-    new_game_match = re.match(r"NEWGAME,(\d+),(\w+)", message_body)
-    next_move = re.match(r"(\d+),(\w+)",message_body)
+
+    message_body = message_body.replace(" ", "")
+    new_game_match = re.match(r"NEWGAME:(\d+),(\w+)", message_body)
+    next_move = re.match(r"MOVE:(\d+),(\w+)",message_body)
+
     if(new_game_match):
         to_num = new_game_match[1]
         first_move = new_game_match[2]
@@ -76,9 +93,14 @@ def sendChessMove():
         first_move = next_move[2]
         queueMessage=f'{from_num},{to_num},{first_move}'
 
-    response = CGRC.update_queue(queueMessage)
-    print(response)
-    return response
+    print("queue message:", queueMessage)
+    if(queueMessage != "ERROR"):
+        response = CGRC.update_queue(queueMessage)
+        data = json.loads(response.decode("utf-8"))
+        Messenger.send_message_your_move(data['nextPlayer'],data['FEN'],data['moveMade'])
+        print("FEN:", data['FEN']) 
+        return response
+    return "none"
 
 if __name__ == '__main__':
     app.run()
