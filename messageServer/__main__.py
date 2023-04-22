@@ -9,20 +9,20 @@ Messenger = MessengerClient()
 
 app = Flask(__name__)
 
-def process_message_body( message ):
+def process_message_body( message , from_num ):
     message = message.replace(" ","")
     message = message.upper()
-    new_game_match = re.match(r"NEWGAME:(\d+),(\w+#?)", return_message)
-    next_move_match = re.match(r"MOVE:(\d+),(\w+#?)",message_body)
+    new_game_match = re.match(r"NEWGAME:(\d+),(\w+#?)", message)
+    next_move_match = re.match(r"MOVE:(\d+),(\w+#?)",message)
 
     if(new_game_match):
         player_num = new_game_match[1]
         first_move = new_game_match[2]
-        return f'new_game,{from_num},{to_num},{first_move}'
+        return f'new_game,{from_num},{player_num},{first_move}'
     if(next_move_match):
         player_num = next_move_match[1]
         next_move = next_move_match[2]
-        return f'{from_num},{to_num},{first_move}'
+        return f'{from_num},{player_num},{first_move}'
     
     return None
 
@@ -31,7 +31,7 @@ def process_message_body( message ):
 def sendChessMove(): 
     from_num = request.form['From'][2:]
     message_body = request.form['Body']
-    queueMessage = process_message_body(message_body)
+    queueMessage = process_message_body(message_body, from_num)
 
     if(queueMessage != None):
         response = CGRC.update_queue(queueMessage)
