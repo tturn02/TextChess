@@ -35,8 +35,6 @@ def getKey(str1: str,str2:str):
     else:
         return str2+str1
     
-def doesGameExist(key:str):
-    
 def makeMove(request):
     if(isNewGame(request)):
         rqVals = request.split(',')
