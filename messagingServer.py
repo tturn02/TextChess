@@ -32,6 +32,16 @@ class MessengerClient(object):
         
         print(message.sid, message.body)
 
+    def send_message_gameover(self, client_number):
+        your_move_message = "Game Over!"
+        message = self.twilio_client.messages.create(
+            body=your_move_message,
+            from_='+18336301344',
+            media_url=['https://chessboardimage.com/{0}.png'.format(board.replace("/",""))],
+            to="+1"+client_number
+        )
+        print(message.sid, message.body)
+
 class ChessGameRequestClient(object):
     def __init__(self):
         self.connection = pika.BlockingConnection(
@@ -96,10 +106,15 @@ def sendChessMove():
     print("queue message:", queueMessage)
     if(queueMessage != "ERROR"):
         response = CGRC.update_queue(queueMessage)
+
         data = json.loads(response.decode("utf-8"))
-        Messenger.send_message_your_move(data['nextPlayer'],data['FEN'],data['moveMade'])
-        print("FEN:", data['FEN']) 
+        if(data['FEN'] == ""):
+            Messenger.send_message_gameover(data['nextPlayer'])
+        else: 
+            Messenger.send_message_your_move(data['nextPlayer'],data['FEN'],data['moveMade'])
+
         return response
+        
     return "none"
 
 if __name__ == '__main__':
