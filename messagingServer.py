@@ -37,8 +37,7 @@ class MessengerClient(object):
         your_move_message = "Game Over!"
         message = self.twilio_client.messages.create(
             body=your_move_message,
-            from_='+18336301344',
-            media_url=['https://chessboardimage.com/{0}.png'.format(board.replace("/",""))],
+            from_='+16206791344',
             to="+1"+client_number
         )
         print(message.sid, message.body)
