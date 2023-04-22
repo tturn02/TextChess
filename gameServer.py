@@ -35,6 +35,8 @@ def getKey(str1: str,str2:str):
     else:
         return str2+str1
     
+def doesGameExist(key:str):
+    
 def makeMove(request):
     if(isNewGame(request)):
         rqVals = request.split(',')
@@ -68,22 +70,30 @@ def makeMove(request):
         playerMove = rqVals[2].replace("'","").replace("\\","")
         key = getKey(player1,player2)
         print(key)
-        gameBoard = gamesDict[key]
-        if(isLegalMove(gameBoard, playerMove)):
-            gameBoard.push_san(playerMove)
-            gameOver = isCheckmate(gameBoard)
-            return json.dumps({
+        if key in gamesDict:
+            gameBoard = gamesDict[key]
+            if(isLegalMove(gameBoard, playerMove)):
+                gameBoard.push_san(playerMove)
+                gameOver = isCheckmate(gameBoard)
+                return json.dumps({
                 "FEN": gameBoard.fen(),
                 "nextPlayer": player2,
                 "moveMade": playerMove,
                 "isGameOver": gameOver
-            })
+                })
+            else:
+                return json.dumps({
+                 "FEN": "",
+                 "nextPlayer": player1,
+                 "moveMade": playerMove,
+                 "isGameOver": False
+             })
         else:
             return json.dumps({
-               "FEN": "",
-               "nextPlayer": player1,
-               "moveMade": playerMove,
-               "isGameOver": False
+                 "FEN": "",
+                 "nextPlayer": "",
+                 "moveMade": "",
+                 "isGameOver": ""
             })
         
         
