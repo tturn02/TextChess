@@ -9,8 +9,8 @@ app = Flask(__name__)
 
 class MessengerClient(object):
     def __init__(self):
-        account_sid = "AC7900bdb31e3ff93ca21a444346b588f4" # os.environ['TWILIO_ACCOUNT_SID']
-        auth_token = "08bbbb0d2961396064b418af61570c8b" #os.environ['TWILIO_AUTH_TOKEN']
+        account_sid ="" # os.environ['TWILIO_ACCOUNT_SID']
+        auth_token = "" #os.environ['TWILIO_AUTH_TOKEN']
         self.twilio_client = Client(account_sid, auth_token)
 
     def send_message_your_move(self , client_number, fen, lastMove):
@@ -108,13 +108,13 @@ def sendChessMove():
         response = CGRC.update_queue(queueMessage)
 
         data = json.loads(response.decode("utf-8"))
-        if(data['FEN'] == ""):
+        if(data['isGameOver'] == True):
             Messenger.send_message_gameover(data['nextPlayer'])
         else: 
             Messenger.send_message_your_move(data['nextPlayer'],data['FEN'],data['moveMade'])
 
         return response
-        
+
     return "none"
 
 if __name__ == '__main__':
