@@ -15,6 +15,8 @@ channel.queue_declare(queue='rpc_queue')
 
 def isLegalMove(board: Board, move: str):
     for legalMove in board.legal_moves:
+        printme = board.san(legalMove)
+        print(printme)
         if(board.san(legalMove) == move):
             return True
     return False
@@ -34,8 +36,6 @@ def getKey(str1: str,str2:str):
         return str1+str2
     else:
         return str2+str1
-    
-def doesGameExist(key:str):
     
 def makeMove(request):
     if(isNewGame(request)):

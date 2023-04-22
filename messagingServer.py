@@ -11,6 +11,7 @@ class MessengerClient(object):
     def __init__(self):
         account_sid ="" # os.environ['TWILIO_ACCOUNT_SID']
         auth_token = "" #os.environ['TWILIO_AUTH_TOKEN']
+
         self.twilio_client = Client(account_sid, auth_token)
 
     def send_message_your_move(self , client_number, fen, lastMove):
@@ -25,7 +26,7 @@ class MessengerClient(object):
         your_move_message = f"Your opponent played: {lastMove}\n Your turn!"
         message = self.twilio_client.messages.create(
             body=your_move_message,
-            from_='+18336301344',
+            from_='+16206791344',
             media_url=['https://chessboardimage.com/{0}.png'.format(board.replace("/",""))],
             to="+1"+client_number
         )
