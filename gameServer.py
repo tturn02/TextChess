@@ -15,6 +15,8 @@ channel.queue_declare(queue='rpc_queue')
 
 def isLegalMove(board: Board, move: str):
     for legalMove in board.legal_moves:
+        printme = board.san(legalMove)
+        print(printme)
         if(board.san(legalMove) == move):
             return True
     return False
