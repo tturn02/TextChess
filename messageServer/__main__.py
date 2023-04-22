@@ -11,7 +11,6 @@ app = Flask(__name__)
 
 def process_message_body( message , from_num ):
     message = message.replace(" ","")
-    message = message.upper()
     new_game_match = re.match(r"NEWGAME:(\d+),(\w+#?)", message)
     next_move_match = re.match(r"MOVE:(\d+),(\w+#?)",message)
 
@@ -22,7 +21,7 @@ def process_message_body( message , from_num ):
     if(next_move_match):
         player_num = next_move_match[1]
         next_move = next_move_match[2]
-        return f'{from_num},{player_num},{first_move}'
+        return f'{from_num},{player_num},{next_move}'
     
     return None
 
